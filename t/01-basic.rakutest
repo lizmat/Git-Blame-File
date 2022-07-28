@@ -1,12 +1,14 @@
 use Test;
 use Git::Blame::File;
 
-plan 34;
+plan 2;
 
 my $blamer = Git::Blame::File.new: $?FILE.IO.sibling("target");
 isa-ok $blamer, Git::Blame::File;
 
 is $blamer.lines.skip.elems, 4, 'did we get correct number of lines';
+
+=finish
 
 my $sha1 := '77877dbc04f8398f8585afacd935a3f147c3736d';
 my $sha2 := 'c64c97c3aaf29d225b2112f88cd22126107e1a32';
