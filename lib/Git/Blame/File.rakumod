@@ -76,11 +76,9 @@ class Git::Blame::File {
 
         my $io     := $file.IO;
         my $parent := $io.parent;
-        my $iterator :=  indir $parent, {
-            my $proc := run <git blame --porcelain>, $io.basename, :out, :err;
-            if $proc.err.slurp -> $error {
-                return $error.Failure;
-            }
+        my $proc;
+        my $iterator := indir $parent, {
+            $proc := run <git blame --porcelain>, $io.basename, :out, :err;
             $proc.out.lines.iterator
         }
 
@@ -150,6 +148,9 @@ class Git::Blame::File {
             --$todo;
         }
 
+        if $proc.err.slurp -> $error {
+            return $error.Failure;
+        }
         @!lines := $lines.List;
     }
 
