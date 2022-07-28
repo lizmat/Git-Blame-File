@@ -71,19 +71,12 @@ class Git::Blame::File {
         self.bless: :$file, :commits(Hash.new)
     }
 
-    method TWEAK(:$file, :$commits is raw --> Nil) {
+    method TWEAK(:$file, :$commits is raw) {
         %!commits := $commits;
 
-        my $io     := $file.IO;
-        my $parent := $io.parent;
-        my $proc;
-        my $iterator := indir $parent, {
-            $proc := run <git blame --porcelain>, $io.basename, :out, :err;
-            $proc.out.lines.iterator
-        }
+        my $proc     := run <git blame --porcelain>, $file, :out, :err;
+        my $iterator := $proc.out.lines.iterator;
 
-        my $lines := IterationBuffer.new;
-        $lines.push: Nil;  # lines[] is 1-based
         my $sha;
         my $filename;
         my $commit;
@@ -91,6 +84,7 @@ class Git::Blame::File {
         my Int() $original-line-number;
         my Int() $line-number;
 
+        my $lines := IterationBuffer.new;
         until (my $porcelain := $iterator.pull-one) =:= IterationEnd {
 
             # still in a chunk
@@ -109,11 +103,14 @@ class Git::Blame::File {
                 ($sha, $original-line-number, $line-number, $todo) =
                   $porcelain.words;
 
+                # commit seen before
                 with %!commits{$sha} {
                     $commit = $_;
                     $porcelain := $iterator.pull-one;
                     die "weird end" unless $porcelain.starts-with("\t");
                 }
+
+                # new commit
                 else {
                     my %fields;
                     until ($porcelain := $iterator.pull-one) =:= IterationEnd
@@ -148,10 +145,13 @@ class Git::Blame::File {
             --$todo;
         }
 
+        # too bad if something went wrong
         if $proc.err.slurp -> $error {
-            return $error.Failure;
+            $error.Failure
         }
-        @!lines := $lines.List;
+        else {
+            @!lines := $lines.List
+        }
     }
 
     method commits() { %!commits.Map }
@@ -169,25 +169,93 @@ Git::Blame::File - Who did what and when on a file in a Git repository
 
 use Git::Blame::File;
 
-my $blamer = Git::Blame::File.new( "t/target" );
-say $blamer.lines[3];
+my $blamer = Git::Blame::File.new("t/target");
+say $blamer.lines[2];  # show line #3
 # c64c97c3 (Elizabeth Mattijsen 2022-07-27 20:40:22 +0200 3) And this the third line
 
 =end code
 
 =head1 DESCRIPTION
 
-Git::Blame is a module that uses C<git blame> to extract information from a single file in a
-Git repository and process it in a number of ways. It's mainly geared to tally contributions
-via lines changed, but it can also be modified and used to do some repository mining.
+Git::Blame::File is a module that uses C<git blame> to extract information
+from a single file in a Git repository.  It processes the C<git blame>
+information into C<Git::Blame::Line> objects, while also keeping track
+of commits in C<Git::Blame::Commit> objects.
 
-It works, for the time being, with single files.
+=head1 METHODS ON Git::Blame::File
 
-=head1 METHODS
+=head2 new
 
-=head2 lines()
+=begin code :lang<raku>
 
-Returns an Array with all the lines in the file (1-based).
+my $blamer = Git::Blame::File.new: "t/target";
+
+=end code
+
+The C<new> method either takes a single positional argument as the
+filename or the C<IO::Path> object of which to obtain C<git blame>
+information.
+
+It can also be called with a C<:file> named argument, and an
+optional C<:commits> argument.  The latter is intended for a future
+C<Git::Blame::Repository> module that would potentially contain
+all C<git blame> information of a repository.
+
+=head2 lines
+
+Returns an C<Array> with all the lines (as C<Git::Blame::Line> objects)
+in the file.  Note that these are 0-based, whereas line numbers are
+typically 1-based.
+
+=begin code :lang<raku>
+
+say $blamer.lines[2];  # show line #3
+# c64c97c3 (Elizabeth Mattijsen 2022-07-27 20:40:22 +0200 3) And this the third line
+
+=end code
+
+=head2 commits
+
+Returns a C<Map> of all the commits that were seen for this file (and
+potentially other files in the future.  Keyed to the C<sha> of the
+commit, and having a C<Git::Blame::Commit> object as a value.
+
+=head1 ACCESSORS ON Git::Blame::Line
+
+Note that C<Git::Blame::Line> objects are created automatically by
+C<Git::Blame::File.new>.
+
+=item author - the name of the author of this line
+=item author-mail - the email address of the author of this line
+=item author-time - a DateTime object for the authoring of this line
+=item commit - the associated Git::Blame::Commit object
+=item committer - the name of the committer of this line
+=item committer-mail - the email address of the committer of this line
+=item committer-time - a DateTime object for the committing of this line
+=item filename - the current filename
+=item line - the actual line currently
+=item line-number - the current line-number
+=item original-line-number - line number when this line was created
+=item previous-sha - the SHA1 of the previous commit of this line
+=item previous-filename - the filename in the previous commit of this line
+=item sha - the SHA1 of the commit to which this line belongs
+=item summary - the first line of the commit message of this line
+
+=head1 ACCESSORS ON Git::Blame::Commit
+
+Note that C<Git::Blame::Commit> objects are created automatically by
+C<Git::Blame::File.new>.
+
+=item author - the name of the author of this commit
+=item author-mail - the email address of the author of this commit
+=item author-time - a DateTime object for the authoring of this commit
+=item committer - the name of the committer of this commit
+=item committer-mail - the email address of the committer of this commit
+=item committer-time - a DateTime object for the committing of this commit
+=item previous-sha - the SHA1 of the previous commit
+=item previous-filename - the filename in the previous commit
+=item sha - the SHA1 of the commit
+=item summary - the first line of the commit message
 
 =head1 AUTHORS
 

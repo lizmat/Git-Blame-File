@@ -6,7 +6,7 @@ plan 18;
 my $blamer = Git::Blame::File.new: $?FILE.IO.sibling("target");
 isa-ok $blamer, Git::Blame::File;
 
-is $blamer.lines.skip.elems, 4, 'did we get correct number of lines';
+is $blamer.lines.elems, 4, 'did we get correct number of lines';
 
 my $sha1 := '77877dbc04f8398f8585afacd935a3f147c3736d';
 my $sha2 := 'c64c97c3aaf29d225b2112f88cd22126107e1a32';
@@ -18,7 +18,7 @@ my $summary1 := 'First commit of target';
 my $summary2 := 'Second commit of target';
 
 my int $linenr;
-for $blamer.lines.skip -> $line {
+for $blamer.lines -> $line {
     ++$linenr;
 
     is $line.author,      'Elizabeth Mattijsen',

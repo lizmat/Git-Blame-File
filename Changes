@@ -2,5 +2,11 @@ Revision history for Git-Blame-File
 
 {{$NEXT}}
 
+0.0.2  2022-07-28T22:56:21+02:00
+    - Add a lot of documentation
+    - Simplify running git blame: indir() doesn't affect 'git blame'
+      so don't bother with it
+    - Switch .lines to 0-based indexing: this makes more sense in the end
+
 0.0.1  2022-07-28T13:57:55+02:00
     - Initial version
