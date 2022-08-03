@@ -147,7 +147,7 @@ class Git::Blame::File {
 
         # too bad if something went wrong
         if $proc.err.slurp -> $error {
-            $error.Failure
+            Failure.new: $error
         }
         else {
             @!lines := $lines.List
