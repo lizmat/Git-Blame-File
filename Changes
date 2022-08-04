@@ -2,6 +2,11 @@ Revision history for Git-Blame-File
 
 {{$NEXT}}
 
+0.0.4  2022-08-04T21:37:46+02:00
+    - Make installable with zef.  Previously, one could only install if
+      doing a "zef install .", because the test assumed the files were
+      unpacked in a git repo.  Moved the tests to author tests.
+
 0.0.3  2022-08-04T00:16:46+02:00
     - Replace .Failure (which is pretty recent in Rakudo) by Failure.new
       Spotted by Márton Polgár.

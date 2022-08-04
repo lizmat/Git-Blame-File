@@ -1,0 +1,49 @@
+use Test;
+use Git::Blame::File;
+
+plan 18;
+
+my $blamer = Git::Blame::File.new: $?FILE.IO.sibling("target");
+isa-ok $blamer, Git::Blame::File;
+
+is $blamer.lines.elems, 4, 'did we get correct number of lines';
+
+my $sha1 := '77877dbc04f8398f8585afacd935a3f147c3736d';
+my $sha2 := 'c64c97c3aaf29d225b2112f88cd22126107e1a32';
+
+my $datetime1 := DateTime.new(2022,7,27,20,39,29,:timezone(7200));
+my $datetime2 := DateTime.new(2022,7,27,20,40,22,:timezone(7200));
+
+my $summary1 := 'First commit of target';
+my $summary2 := 'Second commit of target';
+
+my int $linenr;
+for $blamer.lines -> $line {
+    ++$linenr;
+
+    is $line.author,      'Elizabeth Mattijsen',
+      "is author ok ($linenr)";
+    is $line.author-mail,    '<liz@raku.rocks>',
+      "is author-mail ok ($linenr)";
+    is $line.committer,   'Elizabeth Mattijsen',
+      "is committer ok ($linenr)";
+    is $line.committer-mail, '<liz@raku.rocks>',
+      "is committer-mail ok ($linenr)";
+
+next;  # the following tests fail on CI for some reason
+
+    is-deeply $line.sha,
+      ($linenr == 1 | 4 ?? $sha1 !! $sha2),
+      "is sha ok ($linenr)";
+    is-deeply $line.author-time,
+      ($linenr == 1 | 4 ?? $datetime1 !! $datetime2),
+      "is author-time ok ($linenr)";
+    is-deeply $line.committer-time,
+      ($linenr == 1 | 4 ?? $datetime1 !! $datetime2),
+      "is committer-time ok ($linenr)";
+    is-deeply $line.summary,
+      ($linenr == 1 | 4 ?? $summary1 !! $summary2),
+      "is summary ok ($linenr)";
+}
+
+# vim: expandtab shiftwidth=4
