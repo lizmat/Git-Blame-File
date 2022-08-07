@@ -48,7 +48,7 @@ say $blamer.lines[2];  # show line #3
 commits
 -------
 
-Returns a `Map` of all the commits that were seen for this file (and potentially other files in the future. Keyed to the `sha` of the commit, and having a `Git::Blame::Commit` object as a value.
+Returns a `Map` of all the commits that were seen for this file (and potentially other files in the future. Keyed to the `sha1` of the commit, and having a `Git::Blame::Commit` object as a value.
 
 ACCESSORS ON Git::Blame::Line
 =============================
@@ -77,11 +77,15 @@ Note that `Git::Blame::Line` objects are created automatically by `Git::Blame::F
 
   * original-line-number - line number when this line was created
 
-  * previous-sha - the SHA1 of the previous commit of this line
+  * previous-sha1 - the full SHA1 of the previous commit of this line
+
+  * previous-sha - the shortened SHA1 of the previous commit of this line
 
   * previous-filename - the filename in the previous commit of this line
 
-  * sha - the SHA1 of the commit to which this line belongs
+  * sha1 - the full SHA1 of the commit to which this line belongs
+
+  * sha - the shortened SHA1 of the commit to which this line belongs
 
   * summary - the first line of the commit message of this line
 
@@ -102,11 +106,15 @@ Note that `Git::Blame::Commit` objects are created automatically by `Git::Blame:
 
   * committer-time - a DateTime object for the committing of this commit
 
-  * previous-sha - the SHA1 of the previous commit
+  * previous-sha1 - the full SHA1 of the previous commit
+
+  * previous-sha - the shortened SHA1 of the previous commit
 
   * previous-filename - the filename in the previous commit
 
-  * sha - the SHA1 of the commit
+  * sha1 - the full SHA1 of the commit
+
+  * sha - the shortened SHA1 of the commit
 
   * summary - the first line of the commit message
 

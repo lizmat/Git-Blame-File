@@ -17,13 +17,13 @@ my sub shortened-sha($sha) { $sha.substr(0,8) }
 
 # Gather common information about a commit
 class Git::Commit {
-    has Str      $.sha;
+    has Str      $.sha1;
     has Str      $.author;
     has Str      $.author-mail;
     has Str      $.committer;
     has Str      $.committer-mail;
     has Str      $.summary;
-    has Str      $.previous-sha;
+    has Str      $.previous-sha1;
     has Str      $.previous-filename;
     has DateTime $.author-time;
     has DateTime $.committer-time;
@@ -42,6 +42,8 @@ class Git::Commit {
     }
 
     method blames() { %!blames.Map }
+    method sha()          { shortened-sha $!sha1          }
+    method previous-sha() { shortened-sha $!previous-sha1 }
 }
 
 # Information about a single line of blame
@@ -50,11 +52,11 @@ class Git::Blame::Line {
     has Int         $.original-line-number,
     has Str         $.filename;
     has Str         $.line;
-    has Git::Commit $.commit handles <sha author author-mail committer
+    has Git::Commit $.commit handles <sha sha1 author author-mail committer
       committer-mail summary previous author-time committer-time>;
 
     method Str() {
-        "$.sha.substr(0,8) ($.author $.author-time "
+        "$.sha ($.author $.author-time "
           ~ $!line-number  # for now
 #          ~ sprintf('%4d',$!line-number)  # need to figure out width
           ~ ") $!line"
@@ -77,7 +79,7 @@ class Git::Blame::File {
         my $proc     := run <git blame --porcelain>, $file, :out, :err;
         my $iterator := $proc.out.lines.iterator;
 
-        my $sha;
+        my $sha1;
         my $filename;
         my $commit;
         my Int() $todo;
@@ -89,22 +91,22 @@ class Git::Blame::File {
 
             # still in a chunk
             if $todo {
-                ($sha, $original-line-number, $line-number) =
+                ($sha1, $original-line-number, $line-number) =
                   $porcelain.words;
                 $porcelain := $iterator.pull-one;
                 die "weird end" unless $porcelain.starts-with("\t");
 
-                $commit = %!commits{$sha}
-                  // die "No commit for '$sha' found";
+                $commit = %!commits{$sha1}
+                  // die "No commit for '$sha1' found";
             }
 
             # first chunk or chunk ended
             else {
-                ($sha, $original-line-number, $line-number, $todo) =
+                ($sha1, $original-line-number, $line-number, $todo) =
                   $porcelain.words;
 
                 # commit seen before
-                with %!commits{$sha} {
+                with %!commits{$sha1} {
                     $commit = $_;
                     $porcelain := $iterator.pull-one;
                     die "weird end" unless $porcelain.starts-with("\t");
@@ -127,18 +129,18 @@ class Git::Blame::File {
                         $_ = datetimize $_, %fields<committer-tz>:delete;
                     }
                     with %fields<previous>:delete {
-                        %fields<previous-sha previous-filename> = .words;
+                        %fields<previous-sha1 previous-filename> = .words;
                     }
                     $filename = %fields<filename>;
-                    $commit = %!commits{$sha} :=
-                      Git::Commit.new: :$sha, |%fields;
+                    $commit = %!commits{$sha1} :=
+                      Git::Commit.new: :$sha1, |%fields;
                 }
             }
 
             # all ready to process this line of blame
             my $blame := Git::Blame::Line.new:
               :line($porcelain.substr(1)),  # skip TAB
-              :$sha, :$original-line-number, :$line-number,
+              :$sha1, :$original-line-number, :$line-number,
               :$filename, :$commit;
             $commit.add-blame: $blame;
             $lines.push: $blame;
@@ -217,7 +219,7 @@ say $blamer.lines[2];  # show line #3
 =head2 commits
 
 Returns a C<Map> of all the commits that were seen for this file (and
-potentially other files in the future.  Keyed to the C<sha> of the
+potentially other files in the future.  Keyed to the C<sha1> of the
 commit, and having a C<Git::Blame::Commit> object as a value.
 
 =head1 ACCESSORS ON Git::Blame::Line
@@ -236,9 +238,11 @@ C<Git::Blame::File.new>.
 =item line - the actual line currently
 =item line-number - the current line-number
 =item original-line-number - line number when this line was created
-=item previous-sha - the SHA1 of the previous commit of this line
+=item previous-sha1 - the full SHA1 of the previous commit of this line
+=item previous-sha - the shortened SHA1 of the previous commit of this line
 =item previous-filename - the filename in the previous commit of this line
-=item sha - the SHA1 of the commit to which this line belongs
+=item sha1 - the full SHA1 of the commit to which this line belongs
+=item sha - the shortened SHA1 of the commit to which this line belongs
 =item summary - the first line of the commit message of this line
 
 =head1 ACCESSORS ON Git::Blame::Commit
@@ -252,9 +256,11 @@ C<Git::Blame::File.new>.
 =item committer - the name of the committer of this commit
 =item committer-mail - the email address of the committer of this commit
 =item committer-time - a DateTime object for the committing of this commit
-=item previous-sha - the SHA1 of the previous commit
+=item previous-sha1 - the full SHA1 of the previous commit
+=item previous-sha - the shortened SHA1 of the previous commit
 =item previous-filename - the filename in the previous commit
-=item sha - the SHA1 of the commit
+=item sha1 - the full SHA1 of the commit
+=item sha - the shortened SHA1 of the commit
 =item summary - the first line of the commit message
 
 =head1 AUTHORS

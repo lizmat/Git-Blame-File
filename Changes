@@ -2,6 +2,10 @@ Revision history for Git-Blame-File
 
 {{$NEXT}}
 
+0.0.5  2022-08-07T16:50:12+02:00
+    - Renamed .sha and .previous-sha to .sha1 and .previous-sha1
+    - Introduced .sha and .previous-sha for automatically shortened SHAs
+
 0.0.4  2022-08-04T21:37:46+02:00
     - Make installable with zef.  Previously, one could only install if
       doing a "zef install .", because the test assumed the files were
