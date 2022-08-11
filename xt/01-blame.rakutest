@@ -1,10 +1,14 @@
 use Test;
 use Git::Blame::File;
 
-plan 18;
+plan 40;
 
-my $blamer = Git::Blame::File.new: $?FILE.IO.sibling("target");
+my $target = $?FILE.IO.sibling("target").absolute;
+
+my $blamer = Git::Blame::File.new: $target;
 isa-ok $blamer, Git::Blame::File;
+is $blamer.file, $target, 'does it set "file" correctly';
+is $blamer.Str,  $target, 'does it stringify correctly';
 
 is $blamer.lines.elems, 4, 'did we get correct number of lines';
 
@@ -30,9 +34,8 @@ for $blamer.lines -> $line {
     is $line.committer-mail, '<liz@raku.rocks>',
       "is committer-mail ok ($linenr)";
 
-next;  # the following tests fail on CI for some reason
-
-    is-deeply $line.sha,
+    ok $line.sha1.starts-with($line.sha), 'is short sha ok';
+    is-deeply $line.sha1,
       ($linenr == 1 | 4 ?? $sha1 !! $sha2),
       "is sha ok ($linenr)";
     is-deeply $line.author-time,

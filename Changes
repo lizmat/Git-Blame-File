@@ -2,6 +2,10 @@ Revision history for Git-Blame-File
 
 {{$NEXT}}
 
+0.0.6  2022-08-11T13:40:40+02:00
+    - Add "file" public attribute to Git::Blame::File
+    - Stringify Git::Blame::File objects to the "file" attribute
+
 0.0.5  2022-08-07T16:50:12+02:00
     - Renamed .sha and .previous-sha to .sha1 and .previous-sha1
     - Introduced .sha and .previous-sha for automatically shortened SHAs

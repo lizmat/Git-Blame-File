@@ -66,17 +66,18 @@ class Git::Blame::Line {
 
 # All the blame information about a single file
 class Git::Blame::File {
-    has @.lines   is built(False);
+    has $.file;
+    has @.lines is built(False);
     has %!commits;
 
     multi method new(Git::Blame::File: $file --> Git::Blame::File:D) {
         self.bless: :$file, :commits(Hash.new)
     }
 
-    method TWEAK(:$file, :$commits is raw) {
+    method TWEAK(:$commits is raw) {
         %!commits := $commits;
 
-        my $proc     := run <git blame --porcelain>, $file, :out, :err;
+        my $proc     := run <git blame --porcelain>, $!file, :out, :err;
         my $iterator := $proc.out.lines.iterator;
 
         my $sha1;
@@ -157,6 +158,8 @@ class Git::Blame::File {
     }
 
     method commits() { %!commits.Map }
+
+    multi method Str(Git::Blame::File:D:) { $!file }
 }
 
 =begin pod
@@ -183,6 +186,8 @@ Git::Blame::File is a module that uses C<git blame> to extract information
 from a single file in a Git repository.  It processes the C<git blame>
 information into C<Git::Blame::Line> objects, while also keeping track
 of commits in C<Git::Blame::Commit> objects.
+
+Stringifies to the filename specified.
 
 =head1 METHODS ON Git::Blame::File
 
@@ -222,6 +227,10 @@ Returns a C<Map> of all the commits that were seen for this file (and
 potentially other files in the future.  Keyed to the C<sha1> of the
 commit, and having a C<Git::Blame::Commit> object as a value.
 
+=head2 file
+
+The file from which the C<git blame> information was obtained.
+ 
 =head1 ACCESSORS ON Git::Blame::Line
 
 Note that C<Git::Blame::Line> objects are created automatically by

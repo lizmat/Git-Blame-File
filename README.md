@@ -21,6 +21,8 @@ DESCRIPTION
 
 Git::Blame::File is a module that uses `git blame` to extract information from a single file in a Git repository. It processes the `git blame` information into `Git::Blame::Line` objects, while also keeping track of commits in `Git::Blame::Commit` objects.
 
+Stringifies to the filename specified.
+
 METHODS ON Git::Blame::File
 ===========================
 
@@ -49,6 +51,11 @@ commits
 -------
 
 Returns a `Map` of all the commits that were seen for this file (and potentially other files in the future. Keyed to the `sha1` of the commit, and having a `Git::Blame::Commit` object as a value.
+
+file
+----
+
+The file from which the `git blame` information was obtained.
 
 ACCESSORS ON Git::Blame::Line
 =============================
