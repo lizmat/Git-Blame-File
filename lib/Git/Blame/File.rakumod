@@ -41,9 +41,10 @@ class Git::Commit {
         }
     }
 
-    method blames() { %!blames.Map }
+    method blames()       { %!blames.Map                  }
     method sha()          { shortened-sha $!sha1          }
     method previous-sha() { shortened-sha $!previous-sha1 }
+    method committed()    { $!sha1 ne '0' x 40            }
 }
 
 # Information about a single line of blame
@@ -52,8 +53,9 @@ class Git::Blame::Line {
     has Int         $.original-line-number,
     has Str         $.filename;
     has Str         $.line;
-    has Git::Commit $.commit handles <sha sha1 author author-mail committer
-      committer-mail summary previous author-time committer-time>;
+    has Git::Commit $.commit handles <sha sha1 author author-mail
+      committed committer committer-mail summary previous
+      author-time committer-time>;
 
     method Str() {
         "$.sha ($.author $.author-time "
@@ -158,6 +160,7 @@ class Git::Blame::File {
     }
 
     method commits() { %!commits.Map }
+    method authors() { %!commits.values.map({.author if .committed}).unique }
 
     multi method Str(Git::Blame::File:D:) { $!file }
 }
@@ -221,6 +224,10 @@ say $blamer.lines[2];  # show line #3
 
 =end code
 
+=head2 authors
+
+Returns a list of unique C<author>s of this file.
+
 =head2 commits
 
 Returns a C<Map> of all the commits that were seen for this file (and
@@ -240,6 +247,7 @@ C<Git::Blame::File.new>.
 =item author-mail - the email address of the author of this line
 =item author-time - a DateTime object for the authoring of this line
 =item commit - the associated Git::Blame::Commit object
+=item committed - whether this line has actually been committed
 =item committer - the name of the committer of this line
 =item committer-mail - the email address of the committer of this line
 =item committer-time - a DateTime object for the committing of this line
@@ -262,6 +270,8 @@ C<Git::Blame::File.new>.
 =item author - the name of the author of this commit
 =item author-mail - the email address of the author of this commit
 =item author-time - a DateTime object for the authoring of this commit
+=item blames - a list of Git::Blame::Line objects of this commit
+=item committed - whether it has actually been committed
 =item committer - the name of the committer of this commit
 =item committer-mail - the email address of the committer of this commit
 =item committer-time - a DateTime object for the committing of this commit

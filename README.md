@@ -47,6 +47,11 @@ say $blamer.lines[2];  # show line #3
 # c64c97c3 (Elizabeth Mattijsen 2022-07-27 20:40:22 +0200 3) And this the third line
 ```
 
+authors
+-------
+
+Returns a list of unique `author`s of this file.
+
 commits
 -------
 
@@ -69,6 +74,8 @@ Note that `Git::Blame::Line` objects are created automatically by `Git::Blame::F
   * author-time - a DateTime object for the authoring of this line
 
   * commit - the associated Git::Blame::Commit object
+
+  * committed - whether this line has actually been committed
 
   * committer - the name of the committer of this line
 
@@ -106,6 +113,10 @@ Note that `Git::Blame::Commit` objects are created automatically by `Git::Blame:
   * author-mail - the email address of the author of this commit
 
   * author-time - a DateTime object for the authoring of this commit
+
+  * blames - a list of Git::Blame::Line objects of this commit
+
+  * committed - whether it has actually been committed
 
   * committer - the name of the committer of this commit
 

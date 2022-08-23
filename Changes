@@ -2,6 +2,11 @@ Revision history for Git-Blame-File
 
 {{$NEXT}}
 
+0.0.7  2022-08-23T21:41:54+02:00
+    - Add ::Line.committed and ::Commit.committed methods
+    - Add ::File.authors method
+    - Document ::Commit.blames method
+
 0.0.6  2022-08-11T13:40:40+02:00
     - Add "file" public attribute to Git::Blame::File
     - Stringify Git::Blame::File objects to the "file" attribute
