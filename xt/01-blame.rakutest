@@ -1,16 +1,9 @@
 use Test;
 use Git::Blame::File;
 
-plan 40;
+plan 62;
 
 my $target = $?FILE.IO.sibling("target").absolute;
-
-my $blamer = Git::Blame::File.new: $target;
-isa-ok $blamer, Git::Blame::File;
-is $blamer.file, $target, 'does it set "file" correctly';
-is $blamer.Str,  $target, 'does it stringify correctly';
-
-is $blamer.lines.elems, 4, 'did we get correct number of lines';
 
 my $sha1 := '77877dbc04f8398f8585afacd935a3f147c3736d';
 my $sha2 := 'c64c97c3aaf29d225b2112f88cd22126107e1a32';
@@ -21,32 +14,46 @@ my $datetime2 := DateTime.new(2022,7,27,20,40,22,:timezone(7200));
 my $summary1 := 'First commit of target';
 my $summary2 := 'Second commit of target';
 
-my int $linenr;
-for $blamer.lines -> $line {
-    ++$linenr;
+my sub check-blamer($blamer, int $elems, int $step = 1) is test-assertion {
+    my $partial := $step == 1 ?? "" !! " (partial)";
 
-    is $line.author,      'Elizabeth Mattijsen',
-      "is author ok ($linenr)";
-    is $line.author-mail,    '<liz@raku.rocks>',
-      "is author-mail ok ($linenr)";
-    is $line.committer,   'Elizabeth Mattijsen',
-      "is committer ok ($linenr)";
-    is $line.committer-mail, '<liz@raku.rocks>',
-      "is committer-mail ok ($linenr)";
+    isa-ok $blamer, Git::Blame::File;
+    is $blamer.file, $target, "does it set 'file' correctly$partial";
+    is $blamer.Str,  $target, "does it stringify correctly$partial";
 
-    ok $line.sha1.starts-with($line.sha), 'is short sha ok';
-    is-deeply $line.sha1,
-      ($linenr == 1 | 4 ?? $sha1 !! $sha2),
-      "is sha ok ($linenr)";
-    is-deeply $line.author-time,
-      ($linenr == 1 | 4 ?? $datetime1 !! $datetime2),
-      "is author-time ok ($linenr)";
-    is-deeply $line.committer-time,
-      ($linenr == 1 | 4 ?? $datetime1 !! $datetime2),
-      "is committer-time ok ($linenr)";
-    is-deeply $line.summary,
-      ($linenr == 1 | 4 ?? $summary1 !! $summary2),
-      "is summary ok ($linenr)";
+    is $blamer.lines.elems, $elems,
+      "did we get correct number of lines$partial";
+
+    my int $linenr;
+    for $blamer.lines -> $line {
+        $linenr += $step;
+
+        is $line.author,      'Elizabeth Mattijsen',
+          "is author ok ($linenr)$partial";
+        is $line.author-mail,    '<liz@raku.rocks>',
+          "is author-mail ok ($linenr)$partial";
+        is $line.committer,   'Elizabeth Mattijsen',
+          "is committer ok ($linenr)$partial";
+        is $line.committer-mail, '<liz@raku.rocks>',
+          "is committer-mail ok ($linenr)$partial";
+
+        ok $line.sha1.starts-with($line.sha), "is short sha ok$partial";
+        is-deeply $line.sha1,
+          ($linenr == 1 | 4 ?? $sha1 !! $sha2),
+          "is sha ok ($linenr)$partial";
+        is-deeply $line.author-time,
+          ($linenr == 1 | 4 ?? $datetime1 !! $datetime2),
+          "is author-time ok ($linenr)$partial";
+        is-deeply $line.committer-time,
+          ($linenr == 1 | 4 ?? $datetime1 !! $datetime2),
+          "is committer-time ok ($linenr)$partial";
+        is-deeply $line.summary,
+          ($linenr == 1 | 4 ?? $summary1 !! $summary2),
+          "is summary ok ($linenr)$partial";
+    }
 }
+
+check-blamer Git::Blame::File.new($target), 4;
+check-blamer Git::Blame::File.new($target, :line-numbers(2,4)), 2, 2;
 
 # vim: expandtab shiftwidth=4

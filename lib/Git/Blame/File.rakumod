@@ -73,13 +73,36 @@ class Git::Blame::File {
     has %!commits;
 
     multi method new(Git::Blame::File: $file --> Git::Blame::File:D) {
-        self.bless: :$file, :commits(Hash.new)
+        self.bless: :$file, :commits(Hash.new), |%_
     }
 
-    method TWEAK(:$commits is raw) {
+    method TWEAK(:$commits is raw, :@line-numbers) {
         %!commits := $commits;
 
-        my $proc     := run <git blame --porcelain>, $!file, :out, :err;
+        # Fetch any specific line numbers to get
+        my @sets := do if @line-numbers {
+            my $sets := IterationBuffer.new;
+            my int $last-seen;
+            my int $start;
+            for @line-numbers -> int $_ {
+                if $last-seen {
+                    if $_ > $last-seen + 1 {
+                        $sets.push: "-L$start,$last-seen";
+                        $last-seen = $start = $_;
+                    }
+                    else {
+                        ++$last-seen;
+                    }
+                }
+                else {
+                    $last-seen = $start = $_;
+                }
+            }
+            $sets.push: "-L$start,$last-seen";
+            $sets.List
+        }
+
+        my $proc := run <git blame --porcelain>, @sets, $!file, :out, :err;
         my $iterator := $proc.out.lines.iterator;
 
         my $sha1;
@@ -177,9 +200,13 @@ Git::Blame::File - Who did what and when on a file in a Git repository
 
 use Git::Blame::File;
 
-my $blamer = Git::Blame::File.new("t/target");
+my $blamer = Git::Blame::File.new("xt/target");
 say $blamer.lines[2];  # show line #3
 # c64c97c3 (Elizabeth Mattijsen 2022-07-27 20:40:22 +0200 3) And this the third line
+
+.say for Git::Blame::File.new("xt/target", :line-numbers(2,4)).lines
+#c64c97c3 (Elizabeth Mattijsen 2022-07-27 20:40:22 +0200 2) This became the second line.
+#77877dbc (Elizabeth Mattijsen 2022-07-27 20:39:29 +0200 4) This is the second line.
 
 =end code
 
@@ -210,6 +237,11 @@ It can also be called with a C<:file> named argument, and an
 optional C<:commits> argument.  The latter is intended for a future
 C<Git::Blame::Repository> module that would potentially contain
 all C<git blame> information of a repository.
+
+Finally, it can also be called with an optional C<:line-numbers>
+named argument, which should contain the line numbers (in ascending
+order) of which to obtain blame information.  The C<.lines> method
+will then iterate over the blame information of these line numbers.
 
 =head2 lines
 

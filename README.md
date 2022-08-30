@@ -11,9 +11,13 @@ SYNOPSIS
 ```raku
 use Git::Blame::File;
 
-my $blamer = Git::Blame::File.new("t/target");
+my $blamer = Git::Blame::File.new("xt/target");
 say $blamer.lines[2];  # show line #3
 # c64c97c3 (Elizabeth Mattijsen 2022-07-27 20:40:22 +0200 3) And this the third line
+
+.say for Git::Blame::File.new("xt/target", :line-numbers(2,4)).lines
+#c64c97c3 (Elizabeth Mattijsen 2022-07-27 20:40:22 +0200 2) This became the second line.
+#77877dbc (Elizabeth Mattijsen 2022-07-27 20:39:29 +0200 4) This is the second line.
 ```
 
 DESCRIPTION
@@ -36,6 +40,8 @@ my $blamer = Git::Blame::File.new: "t/target";
 The `new` method either takes a single positional argument as the filename or the `IO::Path` object of which to obtain `git blame` information.
 
 It can also be called with a `:file` named argument, and an optional `:commits` argument. The latter is intended for a future `Git::Blame::Repository` module that would potentially contain all `git blame` information of a repository.
+
+Finally, it can also be called with an optional `:line-numbers` named argument, which should contain the line numbers (in ascending order) of which to obtain blame information. The `.lines` method will then iterate over the blame information of these line numbers.
 
 lines
 -----
