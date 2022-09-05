@@ -1,7 +1,6 @@
 my sub datetimize(Int() $epoch, $offset --> DateTime:D) {
-    my int $hour    = $offset.substr(0,3).Int;
-    my int $minutes = $offset.substr(3).Int;
-    my int $timezone = $hour * 3600;
+    my int $timezone = $offset.substr(0,3).Int * 3600;
+    my int $minutes  = $offset.substr(3).Int;
     $timezone += 60 * ($timezone < 0 ?? -$minutes !! $minutes);
     DateTime.new: $epoch, :$timezone, :formatter({
         my int $tz = .timezone;
@@ -71,6 +70,8 @@ class Git::Blame::File {
     has $.file;
     has @.lines is built(False);
     has %!commits;
+    has DateTime $!created;
+    has DateTime $!modified;
 
     multi method new(Git::Blame::File: $file --> Git::Blame::File:D) {
         self.bless: :$file, :commits(Hash.new), |%_
@@ -182,10 +183,21 @@ class Git::Blame::File {
         }
     }
 
-    method commits() { %!commits.Map }
-    method authors() { %!commits.values.map({.author if .committed}).unique }
+    method commits(Git::Blame::File:D:) {
+        %!commits.Map
+    }
+    method authors(Git::Blame::File:D:) {
+        %!commits.values.map({.author if .committed}).unique
+    }
 
     multi method Str(Git::Blame::File:D:) { $!file }
+
+    method created() {
+        $!created //= %!commits.values.map(*.author-time).sort.head;
+    }
+    method modified() {
+        $!modified //= %!commits.values.map(*.committer-time).sort.tail;
+    }
 }
 
 =begin pod
@@ -265,6 +277,17 @@ Returns a list of unique C<author>s of this file.
 Returns a C<Map> of all the commits that were seen for this file (and
 potentially other files in the future.  Keyed to the C<sha1> of the
 commit, and having a C<Git::Blame::Commit> object as a value.
+
+=head2 created
+
+Returns a C<DateTime> object when this file was created, according to
+the oldest C<author-time> information.  Note that if no lines of the
+first commit exist in the file, this may actually be later.
+
+=head2 modified
+
+Returns a C<DateTime> object when this file was last modified, according
+to the newest C<committer-time> information.
 
 =head2 file
 

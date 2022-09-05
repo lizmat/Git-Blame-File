@@ -1,7 +1,7 @@
 use Test;
 use Git::Blame::File;
 
-plan 62;
+plan 66;
 
 my $target = $?FILE.IO.sibling("target").absolute;
 
@@ -20,6 +20,13 @@ my sub check-blamer($blamer, int $elems, int $step = 1) is test-assertion {
     isa-ok $blamer, Git::Blame::File;
     is $blamer.file, $target, "does it set 'file' correctly$partial";
     is $blamer.Str,  $target, "does it stringify correctly$partial";
+
+    my $created  := $blamer.created;
+    my $modified := $blamer.modified;
+    is-deeply $created, DateTime.new(2022,7,27,20,39,29,:timezone(7200)),
+      "is created ok$partial";
+    is-deeply $modified, DateTime.new(2022,7,27,20,40,22,:timezone(7200)),
+      "is modified ok$partial";
 
     is $blamer.lines.elems, $elems,
       "did we get correct number of lines$partial";

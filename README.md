@@ -63,6 +63,16 @@ commits
 
 Returns a `Map` of all the commits that were seen for this file (and potentially other files in the future. Keyed to the `sha1` of the commit, and having a `Git::Blame::Commit` object as a value.
 
+created
+-------
+
+Returns a `DateTime` object when this file was created, according to the oldest `author-time` information. Note that if no lines of the first commit exist in the file, this may actually be later.
+
+modified
+--------
+
+Returns a `DateTime` object when this file was last modified, according to the newest `committer-time` information.
+
 file
 ----
 
