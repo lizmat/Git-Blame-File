@@ -1,6 +1,8 @@
 Revision history for Git-Blame-File
 
 {{$NEXT}}
+
+0.0.10  2024-08-12T18:59:44+02:00
     - Add dependency on "path-utils" to get "path-git-repo" function
     - Allow obtaining git blame info from files that are *not* in the
       current repository

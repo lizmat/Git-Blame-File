@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/lizmat/Git-Blame-File/actions/workflows/linux.yml/badge.svg)](https://github.com/lizmat/Git-Blame-File/actions) [![Actions Status](https://github.com/lizmat/Git-Blame-File/actions/workflows/macosm.yml/badge.svg)](https://github.com/lizmat/Git-Blame-File/actions) [![Actions Status](https://github.com/lizmat/Git-Blame-File/actions/workflows/windows.yml/badge.svg)](https://github.com/lizmat/Git-Blame-File/actions)
+[![Actions Status](https://github.com/lizmat/Git-Blame-File/actions/workflows/linux.yml/badge.svg)](https://github.com/lizmat/Git-Blame-File/actions) [![Actions Status](https://github.com/lizmat/Git-Blame-File/actions/workflows/macos.yml/badge.svg)](https://github.com/lizmat/Git-Blame-File/actions) [![Actions Status](https://github.com/lizmat/Git-Blame-File/actions/workflows/windows.yml/badge.svg)](https://github.com/lizmat/Git-Blame-File/actions)
 
 NAME
 ====
