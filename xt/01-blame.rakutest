@@ -1,7 +1,7 @@
 use Test;
 use Git::Blame::File;
 
-plan 66;
+plan 67;
 
 my $target = $?FILE.IO.sibling("target").absolute;
 
@@ -62,5 +62,9 @@ my sub check-blamer($blamer, int $elems, int $step = 1) is test-assertion {
 
 check-blamer Git::Blame::File.new($target), 4;
 check-blamer Git::Blame::File.new($target, :line-numbers(2,4)), 2, 2;
+
+ok Git::Blame::File.new("../rak/dist.ini")
+     .lines.head.Str.contains('name = rak'),
+  'can we get blame info from a out-of-tree file';
 
 # vim: expandtab shiftwidth=4

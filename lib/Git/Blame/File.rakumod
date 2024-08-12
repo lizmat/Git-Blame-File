@@ -1,3 +1,5 @@
+use path-utils:ver<0.0.20>:auth<zef:lizmat> <path-git-repo>;
+
 my sub datetimize(Int() $epoch, $offset --> DateTime:D) {
     my int $timezone = $offset.substr(0,3).Int * 3600;
     my int $minutes  = $offset.substr(3).Int;
@@ -29,7 +31,7 @@ class Git::Commit {
     has          $!lock;
     has          %!blames;
 
-    method TWEAK(:$filename --> Nil) {
+    submethod TWEAK(:$filename --> Nil) {
         $!lock := Lock.new;
         %!blames{$filename} = [];
     }
@@ -77,7 +79,7 @@ class Git::Blame::File {
         self.bless: :$file, :commits(Hash.new), |%_
     }
 
-    method TWEAK(:$commits is raw, :@line-numbers) {
+    submethod TWEAK(:$commits is raw, :@line-numbers) {
         %!commits := $commits;
 
         # Fetch any specific line numbers to get
@@ -103,7 +105,13 @@ class Git::Blame::File {
             $sets.List
         }
 
-        my $proc := run <git blame --porcelain>, @sets, $!file, :out, :err;
+        fail "Could not find Git repo for '$!file'"
+          unless my $repo := path-git-repo($!file.IO.resolve.absolute);
+
+        my $proc := indir $repo, {
+            run <git blame --porcelain>,
+              @sets, $!file.IO.resolve.relative, :out, :err;
+        }
         my $iterator := $proc.out.lines.iterator;
 
         my $sha1;
@@ -350,7 +358,7 @@ deal to me!
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2022 Elizabeth Mattijsen
+Copyright 2022, 2024 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
