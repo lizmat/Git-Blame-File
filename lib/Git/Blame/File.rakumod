@@ -1,5 +1,3 @@
-use path-utils:ver<0.0.20>:auth<zef:lizmat> <path-git-repo>;
-
 my sub datetimize(Int() $epoch, $offset --> DateTime:D) {
     my int $timezone = $offset.substr(0,3).Int * 3600;
     my int $minutes  = $offset.substr(3).Int;
@@ -105,12 +103,9 @@ class Git::Blame::File {
             $sets.List
         }
 
-        fail "Could not find Git repo for '$!file'"
-          unless my $repo := path-git-repo($!file.IO.resolve.absolute);
-
-        my $proc := indir $repo, {
-            run <git blame --porcelain>,
-              @sets, $!file.IO.resolve.relative, :out, :err;
+        my $io   := $!file.IO.resolve;
+        my $proc := indir $io.parent, {
+            run <git blame --porcelain>, @sets, $io.relative, :out, :err;
         }
         my $iterator := $proc.out.lines.iterator;
 

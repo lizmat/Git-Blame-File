@@ -6,7 +6,6 @@
   "build-depends": [
   ],
   "depends": [
-    "path-utils:ver<0.0.20>:auth<zef:lizmat"
   ],
   "description": "Who did what and when on a file in a Git repository",
   "license": "Artistic-2.0",
