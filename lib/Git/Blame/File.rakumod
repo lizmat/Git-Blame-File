@@ -48,8 +48,8 @@ class Git::Commit {
 
 # Information about a single line of blame
 class Git::Blame::Line {
-    has Int         $.line-number,
-    has Int         $.original-line-number,
+    has Int         $.line-number;
+    has Int         $.original-line-number;
     has Str         $.filename;
     has Str         $.line;
     has Git::Commit $.commit handles <sha sha1 author author-mail
