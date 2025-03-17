@@ -1,6 +1,8 @@
 Revision history for Git-Blame-File
 
 {{$NEXT}}
+
+0.0.11  2025-03-17T21:35:39+01:00
     - Make sure '^ver' and '^auth' are set on classes, courtesey
       of App::Mi6
 

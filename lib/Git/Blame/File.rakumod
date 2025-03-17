@@ -15,7 +15,7 @@ my sub datetimize(Int() $epoch, $offset --> DateTime:D) {
 my sub shortened-sha($sha) { $sha.substr(0,8) }
 
 # Gather common information about a commit
-class Git::Commit:ver<0.10>:auth<zef:lizmat> {
+class Git::Commit:ver<0.0.11>:auth<zef:lizmat> {
     has Str      $.sha1;
     has Str      $.author;
     has Str      $.author-mail;
@@ -47,7 +47,7 @@ class Git::Commit:ver<0.10>:auth<zef:lizmat> {
 }
 
 # Information about a single line of blame
-class Git::Blame::Line:ver<0.10>:auth<zef:lizmat> {
+class Git::Blame::Line:ver<0.0.11>:auth<zef:lizmat> {
     has Int         $.line-number;
     has Int         $.original-line-number;
     has Str         $.filename;
@@ -66,7 +66,7 @@ class Git::Blame::Line:ver<0.10>:auth<zef:lizmat> {
 }
 
 # All the blame information about a single file
-class Git::Blame::File:ver<0.10>:auth<zef:lizmat> {
+class Git::Blame::File:ver<0.0.11>:auth<zef:lizmat> {
     has $.file;
     has @.lines is built(False);
     has %!commits;
