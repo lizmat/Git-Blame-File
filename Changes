@@ -1,6 +1,8 @@
 Revision history for Git-Blame-File
 
 {{$NEXT}}
+    - Make sure '^ver' and '^auth' are set on classes, courtesey
+      of App::Mi6
 
 0.0.10  2024-08-12T18:59:44+02:00
     - Add dependency on "path-utils" to get "path-git-repo" function
