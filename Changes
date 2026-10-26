@@ -1,9 +1,12 @@
 Revision history for Git-Blame-File
 
 {{$NEXT}}
+
+0.0.12  2026-10-26T20:38:30+01:00
     - Workaround some weird native topic issue in RakuAST
     - Don't return a Failure on problems, but return the
       error message as the only line in .lines
+    - Modernize META
     - Update copyright year
 
 0.0.11  2025-03-17T21:35:39+01:00

@@ -10,18 +10,23 @@
   "description": "Who did what and when on a file in a Git repository",
   "license": "Artistic-2.0",
   "name": "Git::Blame::File",
-  "perl": "6.c",
   "provides": {
     "Git::Blame::File": "lib/Git/Blame/File.rakumod"
   },
+  "raku": "6.c",
   "resources": [
   ],
   "source-url": "https://github.com/lizmat/Git-Blame-File.git",
+  "support": {
+    "bugtracker": "https://github.com/lizmat/Git-Blame-File/issues",
+    "email": "liz@raku.rocks",
+    "source": "https://github.com/lizmat/Git-Blame-File.git"
+  },
   "tags": [
     "GIT",
     "BLAME"
   ],
   "test-depends": [
   ],
-  "version": "0.0.11"
+  "version": "0.0.12"
 }

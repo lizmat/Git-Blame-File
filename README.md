@@ -35,6 +35,7 @@ new
 
 ```raku
 my $blamer = Git::Blame::File.new: "t/target";
+.say for $blamer.lines;
 ```
 
 The `new` method either takes a single positional argument as the filename or the `IO::Path` object of which to obtain `git blame` information.
@@ -42,6 +43,8 @@ The `new` method either takes a single positional argument as the filename or th
 It can also be called with a `:file` named argument, and an optional `:commits` argument. The latter is intended for a future `Git::Blame::Repository` module that would potentially contain all `git blame` information of a repository.
 
 Finally, it can also be called with an optional `:line-numbers` named argument, which should contain the line numbers (in ascending order) of which to obtain blame information. The `.lines` method will then iterate over the blame information of these line numbers.
+
+NOTE: if an error ocurred, then the `.lines` method will only return one line, with the error message.
 
 lines
 -----
