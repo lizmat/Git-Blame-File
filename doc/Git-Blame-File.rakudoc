@@ -36,6 +36,7 @@ Stringifies to the filename specified.
 =begin code :lang<raku>
 
 my $blamer = Git::Blame::File.new: "t/target";
+.say for $blamer.lines;
 
 =end code
 
@@ -52,6 +53,9 @@ Finally, it can also be called with an optional C<:line-numbers>
 named argument, which should contain the line numbers (in ascending
 order) of which to obtain blame information.  The C<.lines> method
 will then iterate over the blame information of these line numbers.
+
+NOTE: if an error ocurred, then the C<.lines> method will only return
+one line, with the error message.
 
 =head2 lines
 
@@ -148,7 +152,7 @@ deal to me!
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2022, 2024, 2025 Elizabeth Mattijsen
+Copyright 2022, 2024, 2025, 2026 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

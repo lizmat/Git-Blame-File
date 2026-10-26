@@ -85,18 +85,18 @@ class Git::Blame::File:ver<0.0.11>:auth<zef:lizmat> {
             my $sets := IterationBuffer.new;
             my int $last-seen;
             my int $start;
-            for @line-numbers -> int $_ {
+            for @line-numbers -> int $number {
                 if $last-seen {
-                    if $_ > $last-seen + 1 {
+                    if $number > $last-seen + 1 {
                         $sets.push: "-L$start,$last-seen";
-                        $last-seen = $start = $_;
+                        $last-seen = $start = $number;
                     }
                     else {
                         ++$last-seen;
                     }
                 }
                 else {
-                    $last-seen = $start = $_;
+                    $last-seen = $start = $number;
                 }
             }
             $sets.push: "-L$start,$last-seen";
@@ -179,10 +179,10 @@ class Git::Blame::File:ver<0.0.11>:auth<zef:lizmat> {
 
         # too bad if something went wrong
         if $proc.err.slurp -> $error {
-            Failure.new: $error
+            @!lines := ($error,);
         }
         else {
-            @!lines := $lines.List
+            @!lines := $lines.List;
         }
     }
 

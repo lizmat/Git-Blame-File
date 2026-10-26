@@ -1,6 +1,10 @@
 Revision history for Git-Blame-File
 
 {{$NEXT}}
+    - Workaround some weird native topic issue in RakuAST
+    - Don't return a Failure on problems, but return the
+      error message as the only line in .lines
+    - Update copyright year
 
 0.0.11  2025-03-17T21:35:39+01:00
     - Make sure '^ver' and '^auth' are set on classes, courtesey
